@@ -27,8 +27,8 @@ contract AvantFragrance is ERC721A, Ownable {
         merkleRoot = _merkleRoot;
     }
 
+    /* OPEN 14:00-24:00 UTC */
     modifier businessHours() {
-        console.log("%s", block.timestamp);
         assembly {
             if lt(mod(div(timestamp(), 3600), 24), 14) { revert(0, 0) }
         }
