@@ -34,6 +34,7 @@ contract CounterTest is Test {
             .find();
 
         vm.store(address(avant_fragrance), bytes32(ownerslot), bytes32(abi.encode(owner)));
+        vm.warp(1683304844);
 
         hoax(address(owner));
         avant_fragrance.flipSaleState();
@@ -74,6 +75,19 @@ contract CounterTest is Test {
     function testFail_multifreemint() public {
         hoax(address(paul));
         avant_fragrance.freeMint();
+        avant_fragrance.freeMint();
+    }
+
+    function testFail_afterBusinessHours() public {
+        vm.warp(1683294001);
+        hoax(address(paul));
+        avant_fragrance.mint{value: 0.1 ether}(1);
+        assertEq(avant_fragrance.totalMinted(), 1);
+    }
+
+    function testFail_afterBusinessHoursFreeMint() public {
+        vm.warp(1683294001);
+        hoax(address(paul));
         avant_fragrance.freeMint();
     }
 

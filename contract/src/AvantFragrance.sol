@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "solady/Milady.sol";
 import "erc721a/ERC721A.sol";
+import "forge-std/Test.sol";
 
 error SaleInactive();
 error NoMoreFragrances();
@@ -26,6 +27,14 @@ contract AvantFragrance is ERC721A, Ownable {
         merkleRoot = _merkleRoot;
     }
 
+    modifier businessHours() {
+        console.log("%s", block.timestamp);
+        assembly {
+            if lt(mod(div(timestamp(), 3600), 24), 14) { revert(0, 0) }
+        }
+        _;
+    }
+
     modifier saleIsActive() {
         if(!_saleIsActive)
         {
@@ -46,7 +55,7 @@ contract AvantFragrance is ERC721A, Ownable {
         }
     }
 
-    function freeMint(/*bytes32[] memory _merkleProof*/) external saleIsActive
+    function freeMint(/*bytes32[] memory _merkleProof*/) external saleIsActive businessHours
     {
         if(_totalMinted() == MAX_FRAGRANCES) {
             revert NoMoreFragrances();
@@ -58,7 +67,7 @@ contract AvantFragrance is ERC721A, Ownable {
         _whitelist[msg.sender] = false;
     }
 
-    function mint(uint256 quantity) external payable saleIsActive {
+    function mint(uint256 quantity) external payable saleIsActive businessHours {
         if(quantity + _totalMinted() > MAX_FRAGRANCES) {
             revert NoMoreFragrances();
         }
